@@ -1,18 +1,11 @@
 import fs from 'fs'
 const { spawnSync } = Bun;
-const repositoryOrigin = import.meta.env.REPOSITORY_ORIGIN;
+import { 
+  repositoryArray, 
+  repositoryOrigin, 
+  type Repository 
+} from './repository.config';
 
-interface Repository {
-  name: string;
-  runtime: 'npm' | 'bun';
-}
-
-const repositories: Repository[] = [
-  {
-    name    : 'database', // actual repo name
-    runtime : 'npm'
-  }
-]
 
 async function pullRepositories(arr: Repository[] = []) {
   if (arr.length < 1) {
@@ -21,18 +14,24 @@ async function pullRepositories(arr: Repository[] = []) {
   }
 
   for (let i = 0; i < arr.length; i++) {
-    const { name, runtime } = arr[i]
+    const { 
+      name, 
+      runtime, 
+      directory_level 
+    } = arr[i]
+
     const currentDir  = process.cwd();
     const url         = new URL(name + '.git', repositoryOrigin).toString()
+    const directory   = directory_level > 1 ? `./services/${name}` : `./${name}`; 
 
     // skip existing directory
-    if (fs.existsSync(`./${name}`)) {
-      console.log(`Directory ./ ${name} already exists. Skipping.`);
+    if (fs.existsSync(directory)) {
+      console.log(`Directory ${directory} already exists. Skipping.`);
       continue;
     }
 
     // ---------- Cloning the repo
-    const cloneProcess = spawnSync(['git', 'clone', url, `./${name}`])
+    const cloneProcess = spawnSync(['git', 'clone', url, directory])
     // Check for any errors during cloning
     if (cloneProcess.exitCode !== 0) {
       console.error(`Error cloning repository ${name}:`, cloneProcess.stderr?.toString());
@@ -42,7 +41,7 @@ async function pullRepositories(arr: Repository[] = []) {
 
     // ---------- Install dependencies
     // Change the current directory to the cloned repository folder
-    process.chdir(`./${name}`);
+    process.chdir(directory);
 
     // Run the install command
     const installProcess = spawnSync([runtime, 'install']);
@@ -59,4 +58,4 @@ async function pullRepositories(arr: Repository[] = []) {
   }
 }
 
-pullRepositories(repositories)
+pullRepositories(repositoryArray)
