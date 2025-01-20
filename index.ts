@@ -21,7 +21,7 @@ async function pullRepositories(arr: Repository[] = []) {
     } = arr[i]
 
     const currentDir  = process.cwd();
-    const url         = new URL(name + '.git', repositoryOrigin).toString()
+    const url         = [repositoryOrigin, '/', name, '.git'].join('')
     const directory   = directory_level > 1 ? `./services/${name}` : `./${name}`; 
 
     // skip existing directory

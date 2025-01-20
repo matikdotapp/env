@@ -8,7 +8,8 @@
     "dev:database": "cd ./database && npm run dev",
     "dev:frontend": "cd ./frontend && npm run dev",
     "dev:gateway": "cd ./gateway && npm run dev",
-    "dev:auth": "cd ./services/auth && npm run dev"
+    "dev:auth": "cd ./services/auth && npm run dev",
+    "start": "bun run index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
